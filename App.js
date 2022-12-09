@@ -12,7 +12,9 @@ import {
   Pressable,
   Button,
 } from 'react-native';
+
 import Voice from 'react-native-voice';
+import * as Speech from 'expo-speech';
 
 export default function App() {
 
@@ -31,47 +33,50 @@ export default function App() {
     Voice.onSpeechResults = onSpeechResults;
     Voice.onSpeechPartialResults = onSpeechPartialResults;
     Voice.onSpeechVolumeChanged = onSpeechVolumeChanged;
- 
     return () => {
       //destroy the process after switching the screen
       Voice.destroy().then(Voice.removeAllListeners);
     };
   }, []);
 
+  useEffect( () => {
+    findCommand();
+  }, [results] )
+
   const onSpeechStart = (e) => {
     //Invoked when .start() is called without error
     
-    console.log('onSpeechStart: ', e);
+    //console.log('onSpeechStart: ', e);
     setStarted('√');
   };
  
   const onSpeechEnd = (e) => {
     //Invoked when SpeechRecognizer stops recognition
-    console.log('onSpeechEnd: ', e);
+    //console.log('onSpeechEnd: ', e);
     setEnd('√');
   };
  
   const onSpeechError = (e) => {
     //Invoked when an error occurs.
-    console.log('onSpeechError: ', e);
+    //console.log('onSpeechError: ', e);
     setError(JSON.stringify(e.error));
   };
  
   const onSpeechResults = (e) => {
     //Invoked when SpeechRecognizer is finished recognizing
-    console.log('onSpeechResults: ', e);
+    //console.log('onSpeechResults: ', e);
     setResults(e.value);
   };
  
   const onSpeechPartialResults = (e) => {
     //Invoked when any results are computed
-    console.log('onSpeechPartialResults: ', e);
+    //console.log('onSpeechPartialResults: ', e);
     setPartialResults(e.value);
   };
  
   const onSpeechVolumeChanged = (e) => {
     //Invoked when pitch that is recognized changed
-    console.log('onSpeechVolumeChanged: ', e);
+    //console.log('onSpeechVolumeChanged: ', e);
     setPitch(e.value);
   };
  
@@ -128,6 +133,32 @@ export default function App() {
       console.error(e);
     }
   };
+
+  const speak = async () => {
+    const thingToSay = 'Hey, what can I do for you?';
+    options = { voice: "com.apple.voice.compact.en-US.Samantha"}
+
+    Speech.speak(thingToSay, options);
+    //const voices = await Speech.getAvailableVoicesAsync();
+    //console.log(voices);
+  };
+
+  const findCommand = async () => {
+    // var stre = "how are you today? , Hey buddy"
+    console.log("partialResults", partialResults)
+    var directory = results.toString();
+    var result = directory.search(/hey buddy/i);
+    
+    if(result !== -1) {
+    console.log("result from command", result);
+    directory = null;
+    await speak()
+    
+    } else {
+    console.log("not match found")
+  }
+  }
+  
 
   return (
     <SafeAreaView style={styles.container}>
