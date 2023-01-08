@@ -41,6 +41,12 @@
 		<dict>
 			<key>localhost</key>
 			<dict>
+				<key>NSAllowsLocalNetworking</key>
+				<true/>
+				<key>NSAllowsArbitraryLoadsInWebContent</key>
+				<true/>
+				<key>NSAllowsArbitraryLoads</key>
+				<true/>
 				<key>NSExceptionAllowsInsecureHTTPLoads</key>
 				<true/>
 			</dict>
@@ -50,6 +56,8 @@
 	<string></string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string></string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>Our app uses bluetooth to find, connect and transfer data between different devices</string>
 	<key>UILaunchStoryboardName</key>
 	<string>SplashScreen</string>
 	<key>UIRequiredDeviceCapabilities</key>
