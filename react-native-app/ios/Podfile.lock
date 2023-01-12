@@ -259,6 +259,8 @@ PODS:
   - React-jsinspector (0.70.5)
   - React-logger (0.70.5):
     - glog
+  - react-native-ble-manager (8.6.0):
+    - React-Core
   - react-native-ble-plx (2.0.3):
     - MultiplatformBleAdapter (= 0.1.9)
     - React-Core
@@ -369,6 +371,7 @@ DEPENDENCIES:
   - React-jsiexecutor (from `../node_modules/react-native/ReactCommon/jsiexecutor`)
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
+  - react-native-ble-manager (from `../node_modules/react-native-ble-manager`)
   - react-native-ble-plx (from `../node_modules/react-native-ble-plx`)
   - "react-native-voice (from `../node_modules/@react-native-voice/voice`)"
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
@@ -462,6 +465,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/jsinspector"
   React-logger:
     :path: "../node_modules/react-native/ReactCommon/logger"
+  react-native-ble-manager:
+    :path: "../node_modules/react-native-ble-manager"
   react-native-ble-plx:
     :path: "../node_modules/react-native-ble-plx"
   react-native-voice:
@@ -532,6 +537,7 @@ SPEC CHECKSUMS:
   React-jsiexecutor: 31564fa6912459921568e8b0e49024285a4d584b
   React-jsinspector: badd81696361249893a80477983e697aab3c1a34
   React-logger: fdda34dd285bdb0232e059b19d9606fa0ec3bb9c
+  react-native-ble-manager: e844e7a601228fefcdd272ff9a733a8a86feacbf
   react-native-ble-plx: f10240444452dfb2d2a13a0e4f58d7783e92d76e
   react-native-voice: f5e8eec2278451d0017eb6a30a6ccc726aca34e0
   React-perflogger: e68d3795cf5d247a0379735cbac7309adf2fb931
