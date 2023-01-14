@@ -1,6 +1,6 @@
 import { registerRootComponent } from 'expo';
 
-import App from './AppBle';
+import App from './App';
 //import App from "react-native-ble-manager/example/App";
 // registerRootComponent calls AppRegistry.registerComponent('main', () => App);
 // It also ensures that whether you load the app in Expo Go or in a native build,
