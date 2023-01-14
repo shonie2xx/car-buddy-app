@@ -18,7 +18,7 @@ const bleManager = new BleManager();
 
 const PageBluetooth = () => {
   
-  const [scannedDevice, setScannedDevice] = useState<Device | null>(null);
+const [scannedDevice, setScannedDevice] = useState<Device | null>(null);
 
 const scanForDevices = async () => {
   bleManager.startDeviceScan(null, null, (error, device) => {
