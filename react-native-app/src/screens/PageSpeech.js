@@ -18,12 +18,12 @@ const PageSpeech = ({ commandTemp, ligthsOn, ligthsOff }) => {
   const [started, setStarted] = useState("");
   const [results, setResults] = useState([]);
 
-  const [sayHi, setSayHi] = useState(false);
+  const [hiResponse, setHiResponse] = useState(false);
   const [tempResponse, setTempResponse] = useState(false);
   const [temperature_val, setTemperature_val] = useState("");
 
-  const [sayLightsOn, setSayLightsOn] = useState(false);
-  const [sayLightsOff, setSayLightsOff] = useState(false);
+  const [lighsOnResponse, setLighsOnResponse] = useState(false);
+  const [lighsOffResponse, setLighsOffResponse] = useState(false);
 
   useEffect(() => {
     //Setting callbacks for the process status
@@ -89,7 +89,7 @@ const PageSpeech = ({ commandTemp, ligthsOn, ligthsOff }) => {
 
   useEffect(() => {
     tellHi();
-  }, [sayHi]);
+  }, [hiResponse]);
 
   useEffect(() => {
     tellYes();
@@ -97,23 +97,23 @@ const PageSpeech = ({ commandTemp, ligthsOn, ligthsOff }) => {
 
   useEffect(() => {
     tellLightsOff();
-  }, [sayLightsOff]);
+  }, [lighsOffResponse]);
 
   useEffect(() => {
     tellLightsOn();
-  }, [sayLightsOn]);
+  }, [lighsOnResponse]);
 
   const tellHi = async () => {
     const thingToSay = "Hey, what can I do for you?";
     let options = {
       voice: "com.apple.voice.compact.en-US.Samantha",
       onDone: () => {
-        setSayHi(false);
+        setHiResponse(false);
         destroyRecognizer();
       },
     };
 
-    if (sayHi) {
+    if (hiResponse) {
       Speech.speak(thingToSay, options);
     }
   };
@@ -139,12 +139,12 @@ const PageSpeech = ({ commandTemp, ligthsOn, ligthsOff }) => {
     let options = {
       voice: "com.apple.voice.compact.en-US.Samantha",
       onDone: () => {
-        setSayLightsOn(false);
+        setLighsOnResponse(false);
         ligthsOn();
         destroyRecognizer();
       },
     };
-    if (sayLightsOn) {
+    if (lighsOnResponse) {
       Speech.speak(thingToSay, options);
     }
   };
@@ -154,12 +154,12 @@ const PageSpeech = ({ commandTemp, ligthsOn, ligthsOff }) => {
     let options = {
       voice: "com.apple.voice.compact.en-US.Samantha",
       onDone: () => {
-        setSayLightsOff(false);
+        setLighsOffResponse(false);
         ligthsOff();
         destroyRecognizer();
       },
     };
-    if (sayLightsOff) {
+    if (lighsOffResponse) {
       Speech.speak(thingToSay, options);
     }
   };
@@ -167,7 +167,7 @@ const PageSpeech = ({ commandTemp, ligthsOn, ligthsOff }) => {
   const recognizeHeyCommand = async () => {
     let isFound = results.toString().search(/hey buddy/i);
     if (isFound !== -1) {
-      setSayHi(true);
+      setHiResponse(true);
     }
   };
 
@@ -197,7 +197,7 @@ const PageSpeech = ({ commandTemp, ligthsOn, ligthsOff }) => {
     var keyWord = directory.search(/lights on/);
     var keyWord1 = directory.search(/light on/);
     if (keyWord !== -1 || keyWord1 !== -1) {
-      setSayLightsOn(true);
+      setLighsOnResponse(true);
     }
   };
 
@@ -206,7 +206,7 @@ const PageSpeech = ({ commandTemp, ligthsOn, ligthsOff }) => {
     var keyWord = directory.search(/lights off/);
     var keyWord1 = directory.search(/light off/);
     if (keyWord !== -1 || keyWord1 !== -1) {
-      setSayLightsOff(true);
+      setLighsOffResponse(true);
     }
   };
 
