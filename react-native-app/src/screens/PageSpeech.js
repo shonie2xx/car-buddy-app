@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from "react";
 import {
   SafeAreaView,
   StyleSheet,
@@ -6,23 +6,24 @@ import {
   View,
   ScrollView,
   Button,
-} from 'react-native';
+} from "react-native";
 
-import Voice from 'react-native-voice';
-import * as Speech from 'expo-speech';
-import { debounce } from 'lodash';
+import Voice from "react-native-voice";
+import * as Speech from "expo-speech";
+import { debounce } from "lodash";
 
-const PageSpeech = ({commandTemp, ligthsOn, ligthsOff}) => {
-
+const PageSpeech = ({ commandTemp, ligthsOn, ligthsOff }) => {
   //Voice recognition
-  const [end, setEnd] = useState('');
-  const [started, setStarted] = useState('');
+  const [end, setEnd] = useState("");
+  const [started, setStarted] = useState("");
   const [results, setResults] = useState([]);
- 
+
   const [sayHi, setSayHi] = useState(false);
   const [tempResponse, setTempResponse] = useState(false);
-  const [temperature_val, setTemperature_val] = useState('');
+  const [temperature_val, setTemperature_val] = useState("");
 
+  const [sayLightsOn, setSayLightsOn] = useState(false);
+  const [sayLightsOff, setSayLightsOff] = useState(false);
 
   useEffect(() => {
     //Setting callbacks for the process status
@@ -36,25 +37,24 @@ const PageSpeech = ({commandTemp, ligthsOn, ligthsOff}) => {
   }, []);
   const onSpeechStart = (e) => {
     //Invoked when .start() is called without error
-    setStarted('√');
+    setStarted("√");
   };
   const onSpeechEnd = (e) => {
     //Invoked when SpeechRecognizer stops recognition
     console.log("ENDS");
-    setEnd('√');
-
-  }; 
+    setEnd("√");
+  };
   const onSpeechResults = (e) => {
     //Invoked when SpeechRecognizer is finished recognizing
     setResults(e.value);
   };
   const startRecognizing = async () => {
     try {
-      await Voice.start('en-US');
-      setStarted('');
+      await Voice.start("en-US");
+      setStarted("");
       setResults([]);
       //setPartialResults([]);
-      setEnd('');
+      setEnd("");
     } catch (e) {
       //eslint-disable-next-line
       console.error(e);
@@ -64,135 +64,166 @@ const PageSpeech = ({commandTemp, ligthsOn, ligthsOff}) => {
     //Destroys the current SpeechRecognizer instance
     try {
       await Voice.destroy();
-      setStarted('');
+      setStarted("");
       setResults([]);
       //setPartialResults([]);
-      setEnd('');
+      setEnd("");
     } catch (e) {
       //eslint-disable-next-line
       console.error(e);
     }
   };
 
- 
   const onCountStopChanging = () => {
-    console.log('count has stopped changing');
+    console.log("count has stopped changing");
     recognizeHeyCommand(); // recognize
     recognizeTempCommand();
-  }
+    recognizeLightsOnCommand();
+    recognizeLightsOffCommand();
+  };
 
   const debouncedOnResultsStopChanging = debounce(onCountStopChanging, 1000);
-  useEffect( () => {
-   
-    
-    // if (Object.is(results, prevResult)) {
-    //   // The count has stopped changing
-    //   console.log('count has stopped changing')
-    //   recognizeHeyCommand();
-    //   recognizeTempCommand();
-    // } else {
-    //   prevResult = results;
-    // }
+  useEffect(() => {
     debouncedOnResultsStopChanging();
-  }, [results])
-
-  
-  
+  }, [results]);
 
   useEffect(() => {
     tellHi();
-  }, [sayHi])
+  }, [sayHi]);
 
   useEffect(() => {
     tellYes();
-  }, [tempResponse])
+  }, [tempResponse]);
 
+  useEffect(() => {
+    tellLightsOff();
+  }, [sayLightsOff]);
+
+  useEffect(() => {
+    tellLightsOn();
+  }, [sayLightsOn]);
 
   const tellHi = async () => {
-    const thingToSay = 'Hey, what can I do for you?';
-    let options = { voice: "com.apple.voice.compact.en-US.Samantha", onDone: () => {
-      setSayHi(false)
-      destroyRecognizer()
-    }}
+    const thingToSay = "Hey, what can I do for you?";
+    let options = {
+      voice: "com.apple.voice.compact.en-US.Samantha",
+      onDone: () => {
+        setSayHi(false);
+        destroyRecognizer();
+      },
+    };
 
-    if(sayHi) {
-    Speech.speak(thingToSay, options)
+    if (sayHi) {
+      Speech.speak(thingToSay, options);
     }
-    
   };
-    
+
   const tellYes = async () => {
     const thingToSay = `Yes my master.....I am setting the temperature to ${temperature_val}`;
-    let options = { voice: "com.apple.voice.compact.en-US.Samantha", onDone: () => {
-      setTempResponse(false)
-      commandTemp(temperature_val);
-      destroyRecognizer()
-    }}
+    let options = {
+      voice: "com.apple.voice.compact.en-US.Samantha",
+      onDone: () => {
+        setTempResponse(false);
+        commandTemp(temperature_val);
+        destroyRecognizer();
+      },
+    };
 
-    if(tempResponse) {
-    Speech.speak(thingToSay, options)
+    if (tempResponse) {
+      Speech.speak(thingToSay, options);
     }
-  }
+  };
+
+  const tellLightsOn = async () => {
+    const thingToSay = "Lights are on";
+    let options = {
+      voice: "com.apple.voice.compact.en-US.Samantha",
+      onDone: () => {
+        setSayLightsOn(false);
+        ligthsOn();
+        destroyRecognizer();
+      },
+    };
+    if (sayLightsOn) {
+      Speech.speak(thingToSay, options);
+    }
+  };
+
+  const tellLightsOff = async () => {
+    const thingToSay = "Lights are off";
+    let options = {
+      voice: "com.apple.voice.compact.en-US.Samantha",
+      onDone: () => {
+        setSayLightsOff(false);
+        ligthsOff();
+        destroyRecognizer();
+      },
+    };
+    if (sayLightsOff) {
+      Speech.speak(thingToSay, options);
+    }
+  };
 
   const recognizeHeyCommand = async () => {
     let isFound = results.toString().search(/hey buddy/i);
-    if(isFound !== -1) {
+    if (isFound !== -1) {
       setSayHi(true);
     }
-  }
+  };
 
   const recognizeTempCommand = async () => {
     const directory = results.toString();
     //looking for key words in the command
     var keyWord = directory.search(/temperature/i);
-    
+
     //looking for 2 digit number with regex
     let pattern = /\d{2}/;
     let number = directory.match(pattern);
     //console.log("number" + number);
-    if(keyWord !== -1 && number !== null)
-    {
-      console.log("number:", number)
-      
+    if (keyWord !== -1 && number !== null) {
+      console.log("number:", number);
+
       setTemperature_val(number[0]);
       // destroyRecognizer();
       setTempResponse(true);
-      
+
       //console.log(temperature_val);
       //console.log("results: ", results)
     }
-  }
+  };
 
   const recognizeLightsOnCommand = async () => {
     const directory = results.toString();
+    var keyWord = directory.search(/lights on/);
+    var keyWord1 = directory.search(/light on/);
+    if (keyWord !== -1 || keyWord1 !== -1) {
+      setSayLightsOn(true);
+    }
+  };
 
-  }
-  
+  const recognizeLightsOffCommand = async () => {
+    const directory = results.toString();
+    var keyWord = directory.search(/lights off/);
+    var keyWord1 = directory.search(/light off/);
+    if (keyWord !== -1 || keyWord1 !== -1) {
+      setSayLightsOff(true);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.container}>
-      <Text>Welcome to the speech recognizer</Text>
-      <View style={styles.headerContainer}>
-          <Text style={styles.textWithSpaceStyle}>
-            {`Started: ${started}`}
-          </Text>
-          <Text style={styles.textWithSpaceStyle}>
-            {`End: ${end}`}
-          </Text>
+        <Text>Welcome to the speech recognizer</Text>
+        <View style={styles.headerContainer}>
+          <Text style={styles.textWithSpaceStyle}>{`Started: ${started}`}</Text>
+          <Text style={styles.textWithSpaceStyle}>{`End: ${end}`}</Text>
         </View>
-        
-        
 
-        <Text style={styles.textStyle}>
-          Results
-        </Text>
-        <ScrollView style={{marginBottom: 42}}>
+        <Text style={styles.textStyle}>Results</Text>
+        <ScrollView style={{ marginBottom: 42 }}>
           {results.map((result, index) => {
             return (
-              <Text
-                key={`result-${index}`}
-                style={styles.textStyle}>
+              <Text key={`result-${index}`} style={styles.textStyle}>
                 {result}
               </Text>
             );
@@ -202,52 +233,54 @@ const PageSpeech = ({commandTemp, ligthsOn, ligthsOff}) => {
           {/* <Button onPress={stopRecognizing} style={styles.buttonStyle} title="Stop recognizing"/>  */}
           {/* <Button onPress={cancelRecognizing} style={styles.buttonStyle} title="Cancel" /> */}
           <Button onPress={startRecognizing} title="Start" />
-          <Button onPress={destroyRecognizer} style={styles.buttonStyle} title="Stop"/>
-        
-      </View>
+          <Button
+            onPress={destroyRecognizer}
+            style={styles.buttonStyle}
+            title="Stop"
+          />
+        </View>
       </View>
     </SafeAreaView>
   );
 };
- 
- 
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    flexDirection: 'column',
-    alignItems: 'center',
+    flexDirection: "column",
+    alignItems: "center",
     padding: 5,
   },
   headerContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     paddingVertical: 10,
   },
   titleText: {
     fontSize: 22,
-    textAlign: 'center',
-    fontWeight: 'bold',
+    textAlign: "center",
+    fontWeight: "bold",
   },
   buttonStyle: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: "center",
     marginTop: 15,
     padding: 10,
-    backgroundColor: '#8ad24e',
+    backgroundColor: "#8ad24e",
     marginRight: 2,
     marginLeft: 2,
   },
   buttonTextStyle: {
-    color: '#fff',
-    textAlign: 'center',
+    color: "#fff",
+    textAlign: "center",
   },
   horizontalView: {
-    flexDirection: 'row',
-    position: 'absolute',
+    flexDirection: "row",
+    position: "absolute",
     bottom: 0,
   },
   textStyle: {
-    textAlign: 'center',
+    textAlign: "center",
     padding: 12,
   },
   imageButton: {
@@ -256,8 +289,8 @@ const styles = StyleSheet.create({
   },
   textWithSpaceStyle: {
     flex: 1,
-    textAlign: 'center',
-    color: '#B0171F',
+    textAlign: "center",
+    color: "#B0171F",
   },
 });
 
