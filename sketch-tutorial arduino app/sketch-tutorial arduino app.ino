@@ -1,42 +1,64 @@
 #include <SoftwareSerial.h>
-SoftwareSerial HM10(0, 1); // RX = 2, TX = 3
+#include "Display.h"
 
-char appData;  
-String inData = "";
+SoftwareSerial BTSerial(2, 3); //RX|TX
 
-void setup() {
-  // put your setup code here, to run once:
+void setup(){
   Serial.begin(9600);
-  Serial.println("HM10 serial started at 9600");
-  HM10.begin(9600); // set HM10 serial at 9600 baud rate
-  pinMode(13, OUTPUT); // onboard LED
-  digitalWrite(13, LOW); // switch OFF LED
+  BTSerial.begin(9600); // default baud rate
+  Serial.println("AT commands: ");
+
+  // led
+  pinMode(13, OUTPUT);
 }
 
-void loop() {
-  // put your main code here, to run repeatedly:
-  HM10.listen();  // listen the HM10 port
-  while (HM10.available() > 0) {   // if HM10 sends something then read
-    appData = HM10.read();
-    inData = String(appData);  // save the data in string format
-    Serial.write(appData);
+void loop(){
+  
+  //Read from the HM-10 and print in Serial Moniter
+    if(BTSerial.available()) {
+      
+      // Serial.write(BTSerial.read());
+      char command = BTSerial.read();
+     
+      switch (command) {
+        case '1' :
+        digitalWrite(13, HIGH);
+        break;
+        case '2' :
+        digitalWrite(13, LOW);
+        break;
+        case '3' :
+        Display.show(15);
+        break;
+        case '4' :
+        Display.show(16);
+        break;
+        case '5' :
+        Display.show(17);
+        break;
+        case '6' :
+        Display.show(18);
+        break;
+        case '7' :
+        Display.show(19);
+        break;
+        case '8' :
+        Display.show(20);
+        break;
+        case '9' :
+        Display.show(21);
+        break;
+        case '10' :
+        Display.show(22);
+        break;
+        case '11' :
+        Display.show(23);
+        break;
+      }
   }
 
-   if (Serial.available()) {           // Read user input if available.
-    delay(10);
-    HM10.write(Serial.read());
+  //Read from the Serial Moniter and print to the HM-10
+  if(Serial.available()) {
+      BTSerial.write(Serial.read());
   }
-
-  if ( inData == "F") {
-    Serial.println("LED OFF");
-    digitalWrite(13, LOW); // switch OFF LED
-    delay(500);
-  }
-  if ( inData == "N") {
-    Serial.println("LED ON");
-    digitalWrite(13, HIGH); // switch OFF LED
-    delay(500);
-    digitalWrite(13, LOW); // switch OFF LED
-    delay(500);
-  } 
 }
