@@ -1,27 +1,28 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import React, { useState } from "react"
+import React, { useState } from "react";
 import { NavigationContainer, useNavigation } from "@react-navigation/native";
-
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import PageSpeech from "../screens/PageSpeech";
 import PageBluetooth from "../screens/PageBluetooth";
 
 import { BleManager, Device } from "react-native-ble-plx";
-const bleManager = new BleManager();
-import {
-  Alert
-} from "react-native";
 
-const base64 = require('base-64');
+const bleManager = new BleManager();
+
+import { Alert } from "react-native";
+import Main from "../screens/Main";
+
+const base64 = require("base-64");
 
 export const AppNav = () => {
-  
   const Tab = createBottomTabNavigator();
+  const Stack = createNativeStackNavigator();
+  const [device, setDevice] = useState<Device | null>(null);
+  const [isConnected, setIsConnected] = useState(false);
 
-  const [scannedDevice, setScannedDevice] = useState<Device | null>(null);
-  
-  // bluttoth 
+  // bluttoth
   const scanForDevices = async () => {
     bleManager.startDeviceScan(null, null, (error, device) => {
       console.log("Scanning...");
@@ -29,131 +30,161 @@ export const AppNav = () => {
         console.log("Error while scanning :", error);
         return;
       }
-  
+
       if (device && device.name?.includes("CarBuddy")) {
         console.log("Connecting to hm-10");
         bleManager.stopDeviceScan();
-        setScannedDevice(device);
+        setDevice(device);
       }
     });
   };
-  
+
   const connectToDevice = async () => {
-    if (scannedDevice) {
-      console.log("id", scannedDevice.id);
-  
-      const device = await bleManager.connectToDevice(scannedDevice.id, {
+    if (device) {
+      console.log("id", device.id);
+
+      const connected = await bleManager.connectToDevice(device.id, {
         requestMTU: 187,
       });
-      await device.discoverAllServicesAndCharacteristics();
-  
-      if(await device.isConnected()) {
-        Alert.alert(`Connected to device ${device.name}`)
+      await connected.discoverAllServicesAndCharacteristics();
+
+      if (await connected.isConnected()) {
+        Alert.alert(`Connected to device ${device.name}`);
+        setIsConnected(true);
       }
       console.log("services", await device.services());
     }
   };
-  
-  const sendCommand1 = async () => {
+
+  const commandLightsOn = async () => {
+    const lightson = base64.encode("1");
+    console.log("command on", lightson);
     try {
-      const service = scannedDevice?.serviceUUIDs;
+      const service = device?.serviceUUIDs;
       if (service) {
-        const info = await scannedDevice?.characteristicsForService(
-          `${service[0]}`
-        );
+        const info = await device?.characteristicsForService(`${service[0]}`);
         if (info) {
-          scannedDevice?.writeCharacteristicWithResponseForService(
+          device?.writeCharacteristicWithResponseForService(
             `${info[0].serviceUUID}`,
             `${info[0].uuid}`,
-            "MQ=="
+            `${lightson}`
           );
         }
       }
     } catch (error) {
       console.log("error sending command", error);
-      Alert.alert('Not connected or bluetooth is off');
+      Alert.alert("Not connected or bluetooth is off");
     }
   };
-  
-  const sendCommand2 = async () => {
+
+  const commandLightsOff = async () => {
+    const lightsoff = base64.encode("2");
+    console.log("command off", lightsoff);
     try {
-      const service = scannedDevice?.serviceUUIDs;
+      console.log("off");
+
+      const service = device?.serviceUUIDs;
       if (service) {
-        const info = await scannedDevice?.characteristicsForService(
-          `${service[0]}`
-        );
+        const info = await device?.characteristicsForService(`${service[0]}`);
         if (info) {
-          scannedDevice?.writeCharacteristicWithResponseForService(
+          device?.writeCharacteristicWithResponseForService(
             `${info[0].serviceUUID}`,
             `${info[0].uuid}`,
-            "Mg=="
+            `${lightsoff}`
           );
         }
       }
     } catch (error) {
       console.log("error sending command", error);
-      Alert.alert('Not connected or bluetooth is off');
+      Alert.alert("Not connected or bluetooth is off");
     }
   };
-  
-  const sendCommandTemperature = async (number: any) => {
+
+  const commandTemperature = async (num: any) => {
+    let temp = "";
+    switch (num) {
+      case "15":
+        temp = base64.encode("3");
+        break;
+      case "16":
+        temp = base64.encode("4");
+        break;
+      case "17":
+        temp = base64.encode("5");
+        break;
+      case "18":
+        temp = base64.encode("6");
+        break;
+      case "19":
+        temp = base64.encode("7");
+        break;
+      case "20":
+        temp = base64.encode("8");
+        break;
+      case "21":
+        temp = base64.encode("9");
+        break;
+      case "22":
+        temp = base64.encode("10");
+        break;
+      case "23":
+        temp = base64.encode("11");
+        break;
+    }
+    console.log("tempnum", num);
     try {
-      console.log("vliza", number[0]);
-      
-      const service = scannedDevice?.serviceUUIDs;
+      const service = device?.serviceUUIDs;
       if (service) {
-        const info = await scannedDevice?.characteristicsForService(
-          `${service[0]}`
-        );
+        const info = await device?.characteristicsForService(`${service[0]}`);
         if (info) {
-          scannedDevice?.writeCharacteristicWithResponseForService(
+          device?.writeCharacteristicWithResponseForService(
             `${info[0].serviceUUID}`,
             `${info[0].uuid}`,
-            //`${base64.encode(number[0])}`
-            'NTA='
+            `${temp}`
           );
         }
       }
     } catch (error) {
       console.log("error sending command", error);
-      Alert.alert('Not connected or bluetooth is off');
+      Alert.alert("Not connected or bluetooth is off");
     }
   };
 
   return (
     <NavigationContainer>
-        <Tab.Navigator
-      initialRouteName="Boosters"
-      screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, color, size }) => {
-          let iconName;
-          if (route.name === "Buddy") {
-            iconName = focused ? "trending-up" : "trending-up-outline";
-          } else if (route.name === "Bluetooth") {
-            iconName = focused ? "newspaper" : "newspaper-outline";
-          } 
-          // You can return any component that you like here!
-          return <Ionicons name={iconName} size={size} color={color} />;
-        },
-        tabBarActiveTintColor: "#0A5172",
-        tabBarInactiveTintColor: "gray",
-        tabBarStyle: {},
-      })}
-    >
-      
-      <Tab.Screen
-        name="Buddy"
-        component={() => <PageSpeech temp={sendCommandTemperature }/>}
-        options={{ headerShown: false }}
-      />
-      <Tab.Screen
-        name="Bluetooth"
-        component={() => <PageBluetooth funcs={[scanForDevices, connectToDevice, scannedDevice]}/>}
-        options={{ headerShown: false }}
-      />
-        </Tab.Navigator>
+      <Stack.Navigator>
+        <Stack.Screen
+          name="Main"
+          component={() => <Main connectionState={isConnected} />}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Buddy"
+          component={() => (
+            <PageSpeech
+              commandTemp={commandTemperature}
+              ligthsOn={commandLightsOn}
+              ligthsOff={commandLightsOff}
+            />
+          )}
+          options={{ headerShown: true }}
+        />
+        <Stack.Screen
+          name="Bluetooth"
+          component={() => (
+            <PageBluetooth
+              device={device}
+              scan={scanForDevices}
+              connect={connectToDevice}
+              temp={commandTemperature}
+              ligthsOn={commandLightsOn}
+              ligthsOff={commandLightsOff}
+            />
+          )}
+          options={{ headerShown: true }}
+        />
+      </Stack.Navigator>
     </NavigationContainer>
-    
   );
 };
 
